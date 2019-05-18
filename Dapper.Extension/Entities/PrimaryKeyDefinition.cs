@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Dapper.Extension.Attributes
+namespace Dapper.Extension.Entities
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class PrimaryKeyAttribute: ColumnAttribute
+    internal class PrimaryKeyDefinition : ColumnDefinition
     {
 
         //----------------------------------------------------------------//
@@ -12,15 +11,16 @@ namespace Dapper.Extension.Attributes
 
         //----------------------------------------------------------------//
 
-        public PrimaryKeyAttribute(
-            String columnName,
-            String primaryKeyConstraint = null, 
-            Boolean isNeedUseDefaultValue = false)
+        public PrimaryKeyDefinition(
+            String columnName, 
+            Boolean isNeedUseDefaultValue = true,
+            String primaryKeyConstraint = null)
             : base(columnName, isNeedUseDefaultValue)
         {
             PrimaryKeyConstraintName = primaryKeyConstraint;
         }
 
         //----------------------------------------------------------------//
+
     }
 }

@@ -1,8 +1,12 @@
-﻿namespace Dapper.Extension.Enums
+﻿using Dapper.Extension.Attributes;
+
+namespace Dapper.Extension.Enums
 {
     public enum SqlProvider
     {
+        [ProviderNames(nameof(NpSql))]
         NpSql,
-        SqlClient,
+        [ProviderNames(nameof(SqlClient), "System.Data.SqlClient")]
+        SqlClient
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Dapper.Extension.Entities;
-using Dapper.Extension.Providers;
+using Dapper.Extension.SqlGenerators;
 using System.Data;
 
 namespace Dapper.Extension.Abstract
@@ -9,21 +9,16 @@ namespace Dapper.Extension.Abstract
         protected DatabaseTypeInfo DatabaseTypeInfo { get; }
         protected IDbConnection Connection { get; }
         protected IDbTransaction Transaction { get; }
+        private protected BaseSqlGenerator SqlGenerator { get; }
 
         //----------------------------------------------------------------//
 
-        public BaseDbOperation(IDbConnection connection)
+        public BaseDbOperation(ISession session)
         {
-            DatabaseTypeInfo = DatabaseEntitiesInfoProvider.GetDatabaseEntityInfo<T>();
-            Connection = connection;
-        }
-
-        //----------------------------------------------------------------//
-
-        public BaseDbOperation(IDbConnection connection, IDbTransaction transaction)
-            : this(connection)
-        {
-            Transaction = transaction;
+            Connection = session.Connection;
+            Transaction = session.Transaction;
+            DatabaseTypeInfo = session.DatabaseEnvironment.DatabaseEntitiesInfo[typeof(T).GetHashCode()];
+            SqlGenerator = session.DatabaseEnvironment.SqlGenerators[session.SqlProvider];
         }
 
         //----------------------------------------------------------------//

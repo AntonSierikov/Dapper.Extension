@@ -11,40 +11,31 @@ namespace Dapper.Extension.Commands
 {
     public class BaseCommand<T, TKey> : BaseDbOperation<T>, ICommand<T, TKey> where T : class
     {
-        private readonly BaseSqlGenerator _sqlGenerator;
-
         //----------------------------------------------------------------//
 
-        public BaseCommand(IDbConnection connection)
-            : base(connection)
-        {
-        }
-
-        //----------------------------------------------------------------//
-
-        public BaseCommand(IDbConnection connection, IDbTransaction transaction)
-            : base(connection, transaction)
+        public BaseCommand(ISession session)
+            : base(session)
         {}
         
         //----------------------------------------------------------------//
 
         public virtual Task<Int32> DeleteAsync(TKey key)
         {
-            return Connection.ExecuteAsync(_sqlGenerator.DeleteQuery(DatabaseTypeInfo));
+            return Connection.ExecuteAsync(SqlGenerator.DeleteQuery(DatabaseTypeInfo, key));
         }
 
         //----------------------------------------------------------------//
 
         public virtual Task<TKey> InsertAsync(T entity)
         {
-            throw new NotImplementedException();
+            return Connection.QueryFirstOrDefaultAsync<TKey>(SqlGenerator.InsertQuery(DatabaseTypeInfo));
         }
 
         //----------------------------------------------------------------//
 
         public virtual Task<Int32> UpdateAsync(T entity)
         {
-            throw new NotImplementedException();
+            return Connection.ExecuteAsync(SqlGenerator.UpdateQuery(DatabaseTypeInfo));
         }
 
         //----------------------------------------------------------------//

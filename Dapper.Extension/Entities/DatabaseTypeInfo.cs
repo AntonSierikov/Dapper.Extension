@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using Dapper.Extension.Helper;
+using Dapper.Extension.Helpers;
 
 namespace Dapper.Extension.Entities
 {
@@ -11,10 +11,21 @@ namespace Dapper.Extension.Entities
     {
         public String TableSchema { get; }
         public String TableName { get; }
-        public Dictionary<String, String> FieldColumnMap { get; }
+        internal Dictionary<String, ColumnDefinition> FieldColumnMap { get; }
 
-        public Dictionary<String, String> FieldPrimaryKeyMap { get; }
+        internal Dictionary<String, PrimaryKeyDefinition> FieldPrimaryKeyMap { get; }
 
+        //----------------------------------------------------------------//
+
+        public String TableDesignation
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(TableSchema)
+                       ? $"{TableSchema}.{TableName}"
+                       : TableName;
+            }
+        }
 
         //----------------------------------------------------------------//
 
@@ -22,10 +33,10 @@ namespace Dapper.Extension.Entities
         {
             PropertyInfo[] propertiesInfo = type.GetProperties();
 
-            TableName = (type.GetCustomAttribute(type) as TableNameAttribute).TableName;
-            FieldColumnMap = TypeMapperHelper.GetFieldColumnMap(propertiesInfo);
-            FieldPrimaryKeyMap = TypeMapperHelper.GetPrimaryKeys(propertiesInfo).ToDictionary(p => p.Key, p => p.Value);
-            TableSchema = (type.GetCustomAttribute(type) as TableSchemaAttribute)?.SchemaName;
+            TableName = type.GetCustomAttribute<TableNameAttribute>().TableName;
+            FieldColumnMap = TypeMapperHelper.GetFieldByPropertiesInfo(propertiesInfo);
+            FieldPrimaryKeyMap = TypeMapperHelper.GetPrimaryKeyByPropertiesInfo(propertiesInfo);
+            TableSchema = type.GetCustomAttribute<TableSchemaAttribute>()?.SchemaName;
         }
 
         //----------------------------------------------------------------//

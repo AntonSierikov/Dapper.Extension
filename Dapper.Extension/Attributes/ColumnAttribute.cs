@@ -3,13 +3,14 @@
 namespace Dapper.Extension.Attributes
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class ColumnAttribute : Attribute
+    public class ColumnAttribute : Attribute
     {
         public String ColumnName { get;  }
+        public Boolean IsNeedUseDefaultValue { get; }
 
         //----------------------------------------------------------------/r/
 
-        public ColumnAttribute (String columnName)
+        public ColumnAttribute (String columnName, Boolean isNeedUseDefaultValue = false)
         {
             ColumnName = columnName;
         }

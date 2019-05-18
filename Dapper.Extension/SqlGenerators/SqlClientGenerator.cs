@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Text;
+using Dapper.Extension.Entities;
 
 namespace Dapper.Extension.SqlGenerators
 {
-    class ExpressionTreeSqlGenerator
+    internal class SqlClientGenerator : BaseSqlGenerator
     {
 
         //----------------------------------------------------------------//
 
+        public override string InsertQuery(DatabaseTypeInfo databaseTypeInfo)
+        {
+            throw new NotImplementedException();
+        }
+
         //----------------------------------------------------------------//
+
     }
 }

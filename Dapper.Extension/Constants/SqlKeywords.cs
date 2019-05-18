@@ -12,5 +12,6 @@ namespace Dapper.Extension.Constants
         public const String DELETE = nameof(DELETE);
         public const String LIMIT = nameof(LIMIT);
         public const String TOP = nameof(TOP);
+        public const String DEFAULT = nameof(DEFAULT);
     }
 }
