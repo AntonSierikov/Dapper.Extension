@@ -13,9 +13,10 @@ namespace Dapper.Extension.Entities
 
         public PrimaryKeyDefinition(
             String columnName, 
+            String propertyName,
             Boolean isNeedUseDefaultValue = true,
             String primaryKeyConstraint = null)
-            : base(columnName, isNeedUseDefaultValue)
+            : base(columnName, propertyName, isNeedUseDefaultValue)
         {
             PrimaryKeyConstraintName = primaryKeyConstraint;
         }

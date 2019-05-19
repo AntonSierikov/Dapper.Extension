@@ -14,8 +14,8 @@ namespace Dapper.Extension.Attributes
 
         public PrimaryKeyAttribute(
             String columnName,
-            String primaryKeyConstraint = null, 
-            Boolean isNeedUseDefaultValue = false)
+            Boolean isNeedUseDefaultValue = false,
+            String primaryKeyConstraint = null)
             : base(columnName, isNeedUseDefaultValue)
         {
             PrimaryKeyConstraintName = primaryKeyConstraint;

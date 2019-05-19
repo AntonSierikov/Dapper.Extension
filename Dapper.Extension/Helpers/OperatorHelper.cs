@@ -20,7 +20,7 @@ namespace Dapper.Extension.Helpers
             String propertyColumnsOperatorWithSpaces = OperatorWithSpaces(propertyColumnsOperator);
             String termOperatorWithSpaces = OperatorWithSpaces(termOperator);
             return String.Join(termOperatorWithSpaces, propertyColumns
-                .Select(pc => $"{pc.Key} {propertyColumnsOperatorWithSpaces} @{(pc.Value.ColumnName)}"));
+                .Select(pc => $"{pc.Value.ColumnName} {propertyColumnsOperatorWithSpaces} @{(pc.Value.PropertyName)}"));
         }
 
         //----------------------------------------------------------------//

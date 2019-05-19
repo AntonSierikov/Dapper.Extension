@@ -13,13 +13,9 @@ namespace Dapper.Extension.SqlGenerators
 
         //----------------------------------------------------------------//
 
-        public abstract String InsertQuery(DatabaseTypeInfo databaseTypeInfo);
-
-        //----------------------------------------------------------------//
-
         public virtual String UpdateQuery(DatabaseTypeInfo databaseTypeInfo)
         {
-            String fieldColumnUpdateAStatement = String.Join(CharConstants.COMMA.ToString(), databaseTypeInfo.FieldColumnMap.Select(fc => $"{fc.Value} = @{fc.Key}"));
+            String fieldColumnUpdateAStatement = String.Join(CharConstants.COMMA.ToString(), databaseTypeInfo.FieldColumnMap.Select(fc => $"{fc.Value.ColumnName} = @{fc.Key}"));
             String primaryKeyCondition = GetPrimaryKeyCondition(databaseTypeInfo);
             String updateStatement = $@"UPDATE {databaseTypeInfo.TableDesignation} SET
                                         {fieldColumnUpdateAStatement}
@@ -47,6 +43,17 @@ namespace Dapper.Extension.SqlGenerators
 
         //----------------------------------------------------------------//
 
+        public virtual String InsertQuery(DatabaseTypeInfo databaseTypeInfo)
+        {
+            IEnumerable<String> values = databaseTypeInfo.FieldColumnMap
+                .Select(m => m.Value.IsNeedUseDefaultValue ? SqlKeywords.DEFAULT : m.Key);
+            IEnumerable<String> columns = databaseTypeInfo.FieldColumnMap.Select(m => m.Value.ColumnName);
+            IEnumerable<String> keys = databaseTypeInfo.FieldPrimaryKeyMap.Select(k => k.Value.ColumnName);
+            return InsertQuery(databaseTypeInfo.TableDesignation, values, columns, keys);
+        }
+
+        //----------------------------------------------------------------//
+
         #endregion
 
         #region Protected methods 
@@ -65,13 +72,22 @@ namespace Dapper.Extension.SqlGenerators
         {
             Type keyType = key.GetType();
             IEnumerable<PrimaryKeyDefinition> columns = databaseTypeInfo.FieldPrimaryKeyMap.Select(fc => fc.Value);
-            var customKeyMap = keyType.GetProperties().Join(columns, p => p.Name, c => c.ColumnName,
+            var customKeyMap = keyType.GetProperties().Join(columns, p => p.Name, c => c.PropertyName,
                                     (p, c) => new { Property = p, Column = c }).ToDictionary(p => p.Property.Name, c => c.Column);
             return OperatorHelper.JoinPropertyColumn(customKeyMap, ComparisonOperators.EQUAL.ToString(), LogicalOperators.AND);
         }
 
         //----------------------------------------------------------------//
 
+        protected abstract String InsertQuery(
+            String tableDesignation,
+            IEnumerable<String> values,
+            IEnumerable<String> columns,
+            IEnumerable<String> keys);
+
+        //----------------------------------------------------------------//
+
         #endregion
+
     }
 }

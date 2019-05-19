@@ -11,20 +11,16 @@ namespace Dapper.Extension.SqlGenerators
 
         //----------------------------------------------------------------//
 
-        public override string InsertQuery(DatabaseTypeInfo databaseTypeInfo)
+        protected override string InsertQuery(
+            String tableDesignation,
+            IEnumerable<String> values, 
+            IEnumerable<String> columns, 
+            IEnumerable<String> keys)
         {
-            String comma = CharConstants.COMMA.ToString();
-
-            IEnumerable<String> values = databaseTypeInfo.FieldColumnMap
-                .Select(m => m.Value.IsNeedUseDefaultValue ? SqlKeywords.DEFAULT : m.Key);
-            IEnumerable<String> columns = databaseTypeInfo.FieldColumnMap.Select(m => m.Value.ColumnName);
-
-            IEnumerable<String> keys = databaseTypeInfo.FieldPrimaryKeyMap.Select(k => k.Value.ColumnName);
-
-            String query = $@"INSERT INTO {databaseTypeInfo.TableDesignation} 
-                              ({String.Join(comma, columns)})
-                              VALUES ({String.Join(comma, values)} 
-                              OUTPUT ({String.Join(comma, keys)}";
+            String query = $@"INSERT INTO {tableDesignation} 
+                              ({String.Join(StringConstants.COMMA, columns)})
+                              VALUES ({String.Join(StringConstants.COMMA, values)}) 
+                              RETURNING ({String.Join(StringConstants.COMMA, keys)})";
             return query;
         }
 

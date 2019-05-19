@@ -10,10 +10,16 @@ namespace Dapper.Extension.Abstract
     {
         DbConnection Connection { get; }
         DbTransaction Transaction { get; }
-        DatabaseAccessor DatabaseEnvironment { get; }
+        DatabaseAccessor DatabaseAccessor { get; }
         SqlProvider SqlProvider { get; }
 
         Task<IDbConnection> OpenConnection(String connectionString);
         IDbTransaction OpenTransaction(IsolationLevel isolationlevel = IsolationLevel.ReadCommitted);
+
+        ICommand<T, TKey> CreateBaseCommand<T, TKey>() where T : class;
+        IQuery<T, TKey> CreateBaseQuery<T, TKey>() where T : class;
+
+        TCustomCommandInterface GetCustomCommand<TCustomCommandInterface, TEntity, TCustomCommand>() where TCustomCommandInterface : class;
+        TCustomQueryInteface GetCustomQuery<TCustomQueryInteface, TEntity, TCustomQuery>() where TCustomQueryInteface : class;
     }
 }

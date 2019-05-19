@@ -17,8 +17,8 @@ namespace Dapper.Extension.Abstract
         {
             Connection = session.Connection;
             Transaction = session.Transaction;
-            DatabaseTypeInfo = session.DatabaseEnvironment.DatabaseEntitiesInfo[typeof(T).GetHashCode()];
-            SqlGenerator = session.DatabaseEnvironment.SqlGenerators[session.SqlProvider];
+            DatabaseTypeInfo = session.DatabaseAccessor.DatabaseEntitiesInfo[typeof(T).GetHashCode()];
+            SqlGenerator = session.DatabaseAccessor.SqlGenerators[session.SqlProvider];
         }
 
         //----------------------------------------------------------------//

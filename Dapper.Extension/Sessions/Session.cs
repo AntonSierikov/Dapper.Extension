@@ -1,5 +1,7 @@
 ﻿using Dapper.Extension.Abstract;
+using Dapper.Extension.Commands;
 using Dapper.Extension.Enums;
+using Dapper.Extension.Queries;
 using System;
 using System.Data;
 using System.Data.Common;
@@ -16,15 +18,15 @@ namespace Dapper.Extension.Sessions
 
         public DbTransaction Transaction { get; private set; }
 
-        public DatabaseAccessor DatabaseEnvironment { get; }
+        public DatabaseAccessor DatabaseAccessor { get; }
 
         public SqlProvider SqlProvider { get; }
 
         //----------------------------------------------------------------//
 
-        public Session(DatabaseAccessor dbEnvironment, SqlProvider sqlProvider)
+        public Session(DatabaseAccessor dbAccessor, SqlProvider sqlProvider)
         {
-            DatabaseEnvironment = dbEnvironment;
+            DatabaseAccessor = dbAccessor;
             SqlProvider = sqlProvider;
         }
 
@@ -32,7 +34,7 @@ namespace Dapper.Extension.Sessions
 
         public async Task<IDbConnection> OpenConnection(String connectionString)
         {
-            Connection = DatabaseEnvironment.ProviderFactories[SqlProvider].CreateConnection();
+            Connection = DatabaseAccessor.ProviderFactories[SqlProvider].CreateConnection();
             Connection.ConnectionString = connectionString;
             await Connection.OpenAsync();
             return Connection;
@@ -46,6 +48,33 @@ namespace Dapper.Extension.Sessions
             return Transaction;
         }
 
+        //----------------------------------------------------------------//
+
+        public ICommand<T, TKey> CreateBaseCommand<T, TKey>() where T: class
+        {
+            return new BaseCommand<T, TKey>(this);
+        }
+
+        //----------------------------------------------------------------//
+        
+        public IQuery<T, TKey> CreateBaseQuery<T, TKey>() where T: class
+        {
+            return new BaseQuery<T, TKey>(this);
+        }
+
+        //----------------------------------------------------------------//
+
+        public TCustomCommandInterface GetCustomCommand<TCustomCommandInterface, TEntity, TCustomCommand>() 
+            where TCustomCommandInterface: class
+        {
+            return DatabaseAccessor.CustomCommands[typeof(TEntity).GetHashCode()] as TCustomCommandInterface;
+        }
+
+        public TCustomQueryInteface GetCustomQuery<TCustomQueryInteface, TEntity, TCustomQuery>()
+            where TCustomQueryInteface: class
+        {
+            return DatabaseAccessor.CustomQueries[typeof(TEntity).GetHashCode()] as TCustomQueryInteface; 
+        }
 
         //----------------------------------------------------------------//
 

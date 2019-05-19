@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Extension.Queries
 {
-    public class BaseQuery<T, TKey> : BaseDbOperation<T>, IQuery<T, TKey>
+    class BaseQuery<T, TKey> : BaseDbOperation<T>, IQuery<T, TKey>
     {
         //----------------------------------------------------------------//
 

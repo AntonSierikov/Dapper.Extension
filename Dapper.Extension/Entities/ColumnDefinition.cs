@@ -11,12 +11,15 @@ namespace Dapper.Extension.Entities
 
         public Boolean IsNeedUseDefaultValue { get; }
 
+        public String PropertyName { get; }
+
         //----------------------------------------------------------------//
 
-        public ColumnDefinition(String columnName, Boolean isNeedUseDefaultValue = false)
+        public ColumnDefinition(String columnName, String propertyName, Boolean isNeedUseDefaultValue = false)
         {
             ColumnName = columnName;
             IsNeedUseDefaultValue = isNeedUseDefaultValue;
+            PropertyName = propertyName;
         }
 
         //----------------------------------------------------------------//

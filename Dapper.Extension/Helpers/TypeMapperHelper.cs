@@ -20,8 +20,8 @@ namespace Dapper.Extension.Helpers
         {
             return GetPropertyEntityMap<ColumnDefinition, ColumnAttribute>(
                 propertiesInfo,
-                (colAttr) => new ColumnDefinition(colAttr.ColumnName, colAttr.IsNeedUseDefaultValue),
-                (property) => new ColumnDefinition(property.Name)).ToDictionary(k => k.Key, v => v.Value);
+                (colAttr, property) => new ColumnDefinition(colAttr.ColumnName, property.Name, colAttr.IsNeedUseDefaultValue),
+                (property) => new ColumnDefinition(property.Name, property.Name));
         }
 
         //----------------------------------------------------------------//
@@ -30,8 +30,11 @@ namespace Dapper.Extension.Helpers
         {
             return GetPropertyEntityMap<PrimaryKeyDefinition, PrimaryKeyAttribute>(
                 propertiesInfo,
-                (prKeyAttr) => new PrimaryKeyDefinition(prKeyAttr.ColumnName, prKeyAttr.IsNeedUseDefaultValue, prKeyAttr.PrimaryKeyConstraintName),
-                (property) => new PrimaryKeyDefinition(property.Name)).ToDictionary(k => k.Key, v => v.Value);
+                (prKeyAttr, property) => new PrimaryKeyDefinition(
+                    prKeyAttr.ColumnName, 
+                    property.Name,
+                    prKeyAttr.IsNeedUseDefaultValue,
+                    prKeyAttr.PrimaryKeyConstraintName));
 
         }
 
@@ -41,32 +44,43 @@ namespace Dapper.Extension.Helpers
 
         //----------------------------------------------------------------//
 
-        public static IEnumerable<KeyValuePair<String, TEntity>> GetPropertyEntityMap<TEntity, TAttribute>(
+        public static Dictionary<String, TEntity> GetPropertyEntityMap<TEntity, TAttribute>(
             PropertyInfo[] propertiesInfo, 
-            Func<TAttribute, TEntity> mapByPropertyAttributeIfExist, 
-            Func<PropertyInfo, TEntity> mapByProperty) 
+            Func<TAttribute, PropertyInfo, TEntity> mapByPropertyAttributeIfExist, 
+            Func<PropertyInfo, TEntity> mapByProperty = null) 
             where TAttribute: Attribute
         {
-            return propertiesInfo.ToDictionary(p => p.Name, p => GetEntityMap(p, mapByPropertyAttributeIfExist, mapByProperty))
-                                 .Where(p => p.Equals(default(KeyValuePair<String, TEntity>)));
+            Dictionary<String, TEntity> propertyEntityMap = new Dictionary<String, TEntity>();
+
+            foreach(PropertyInfo propertyInfo in propertiesInfo)
+            {
+                TEntity mapEntity = GetEntityMap(propertyInfo, mapByPropertyAttributeIfExist, mapByProperty);
+
+                if(!Object.Equals(mapEntity, default(TEntity)))
+                {
+                    propertyEntityMap[propertyInfo.Name] = mapEntity;
+                }
+            }
+
+            return propertyEntityMap;
         }
 
         //----------------------------------------------------------------//
 
         public static TEntity GetEntityMap<TEntity, TAttribute>(
             PropertyInfo propertyInfo, 
-            Func<TAttribute, TEntity> mapByPropertyAttributeIfExist,
+            Func<TAttribute, PropertyInfo, TEntity> mapByPropertyAttributeIfExist,
             Func<PropertyInfo, TEntity> mapByProperty)
             where TAttribute: Attribute
         {
-            TEntity entity;
+            TEntity entity = default(TEntity);
             TAttribute columnAttribute = propertyInfo.GetCustomAttribute<TAttribute>();
 
             if(columnAttribute != null)
             {
-                entity = mapByPropertyAttributeIfExist(columnAttribute);
+                entity = mapByPropertyAttributeIfExist(columnAttribute, propertyInfo);
             }
-            else 
+            else if(mapByProperty != null)
             {
                 entity = mapByProperty(propertyInfo);
             }

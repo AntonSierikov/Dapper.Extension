@@ -28,11 +28,19 @@ namespace Dapper.Extension
 
         internal Dictionary<SqlProvider, BaseSqlGenerator> SqlGenerators { get; private set; }
 
+        internal Dictionary<Int32, Object> CustomCommands { get; private set; }
+
+        internal Dictionary<Int32, Object> CustomQueries { get; private set; }
+
         //----------------------------------------------------------------//
 
-        public DatabaseAccessor(IDictionary<SqlProvider, DbProviderFactory> providerFactories)
+        private DatabaseAccessor(IDictionary<SqlProvider, DbProviderFactory> providerFactories)
         {
             ProviderFactories = providerFactories;
+            DatabaseEntitiesInfo = new Dictionary<Int32, DatabaseTypeInfo>();
+            SqlGenerators = new Dictionary<SqlProvider, BaseSqlGenerator>();
+            CustomCommands = new Dictionary<Int32, Object>();
+            CustomQueries = new Dictionary<Int32, Object>();
             InitSqlGenerators();
         }
 
@@ -50,19 +58,24 @@ namespace Dapper.Extension
 
         public DatabaseAccessor(
             IDictionary<SqlProvider, DbProviderFactory> providerFactories, 
-            String @namespace)
+            String @namespace,
+            String assemblyName)
+            : this(providerFactories)
         {
-            InitCustomMapTypes(@namespace);
+            InitCustomMapTypes(@namespace, assemblyName);
         }
 
         //----------------------------------------------------------------//
 
         #region Public Methods
 
-        public async Task<ISession> OpenSession(String connectionString, SqlProvider provider, IsolationLevel? isolationLevel)
+        public async Task<ISession> OpenSessionAsync(
+            String connectionString, 
+            SqlProvider provider,
+            IsolationLevel? isolationLevel = null)
         {
-            DbProviderFactory providerFactory = ProviderFactories[SqlProvider.NpSql];
-            Session session = new Session(this, SqlProvider.NpSql);
+            DbProviderFactory providerFactory = ProviderFactories[SqlProvider.NpgSql];
+            Session session = new Session(this, SqlProvider.NpgSql);
 
             await session.OpenConnection(connectionString);
 
@@ -73,6 +86,23 @@ namespace Dapper.Extension
 
             return session;
         }
+
+        //----------------------------------------------------------------//
+
+        public void AddCustomCommand<TEntity, TCustomCommand>(TCustomCommand customCommand)
+        {
+            CustomCommands[typeof(TEntity).GetHashCode()] = customCommand;
+        }
+
+        //----------------------------------------------------------------//
+
+        public void AddCustomQuery<TEntity, TCustomQuery>(TCustomQuery customQuery)
+        {
+            CustomQueries[typeof(TEntity).GetHashCode()] = customQuery;
+        }
+
+        //----------------------------------------------------------------//
+
 
         #endregion
 
@@ -91,19 +121,18 @@ namespace Dapper.Extension
 
         //----------------------------------------------------------------//
 
-        private void InitCustomMapTypes(String @namespace)
+        private void InitCustomMapTypes(String @namespace, String assemblyName)
         {
-            Assembly executingAssembly = Assembly.GetExecutingAssembly();
-            IEnumerable<Type> databaseTypes = executingAssembly.GetTypes().Where(t => t.IsClass && t.Namespace.Equals(@namespace));
+            Assembly executingAssembly = AppDomain.CurrentDomain.GetAssemblies().First(a => a.GetName().Name.Equals(assemblyName));
+            IEnumerable<Type> databaseTypes = executingAssembly.GetTypes().Where(t => t.IsClass && String.Equals(t.Namespace, @namespace));
             InitCustomMapTypes(databaseTypes);
         }
-
 
         //----------------------------------------------------------------//
 
         private void InitSqlGenerators()
         {
-            SqlGenerators.Add(SqlProvider.NpSql, new NpgSqlGenerator());
+            SqlGenerators.Add(SqlProvider.NpgSql, new NpgSqlGenerator());
             SqlGenerators.Add(SqlProvider.SqlClient, new SqlClientGenerator());
         }
 
