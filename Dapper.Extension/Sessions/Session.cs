@@ -57,9 +57,9 @@ namespace Dapper.Extension.Sessions
 
         //----------------------------------------------------------------//
         
-        public IQuery<T, TKey> CreateBaseQuery<T, TKey>() where T: class
+        public IQuery<T> CreateBaseQuery<T>() where T: class
         {
-            return new BaseQuery<T, TKey>(this);
+            return new BaseQuery<T>(this);
         }
 
         //----------------------------------------------------------------//

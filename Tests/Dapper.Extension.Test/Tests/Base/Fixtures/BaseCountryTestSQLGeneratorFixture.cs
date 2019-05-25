@@ -72,7 +72,8 @@ namespace Dapper.Extension.Test.Tests.Base.Fixtures
             String arrangeQuery = $"DELETE FROM {CountryTableName} WHERE country_code = @{nameof(Country.CountryCode)}";
 
             //act
-            String deleteResultQuery = Generator.DeleteQuery(CountryTypeInfo, new { CountryCode });
+            var parameters = new { CountryCode };
+            String deleteResultQuery = Generator.DeleteQuery(CountryTypeInfo, parameters);
 
             //assert
             Assert.AreEqual(arrangeQuery.RemoveSpaces().RemoveNewLines(), 

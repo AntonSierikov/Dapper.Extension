@@ -26,11 +26,11 @@ namespace Dapper.Extension.Helpers
 
         //----------------------------------------------------------------//
 
-        internal static Dictionary<String, PrimaryKeyDefinition> GetPrimaryKeyByPropertiesInfo(PropertyInfo[] propertiesInfo)
+        internal static Dictionary<String, PrimaryKeyColumnDefinition> GetPrimaryKeyByPropertiesInfo(PropertyInfo[] propertiesInfo)
         {
-            return GetPropertyEntityMap<PrimaryKeyDefinition, PrimaryKeyAttribute>(
+            return GetPropertyEntityMap<PrimaryKeyColumnDefinition, PrimaryKeyAttribute>(
                 propertiesInfo,
-                (prKeyAttr, property) => new PrimaryKeyDefinition(
+                (prKeyAttr, property) => new PrimaryKeyColumnDefinition(
                     prKeyAttr.ColumnName, 
                     property.Name,
                     prKeyAttr.IsNeedUseDefaultValue,

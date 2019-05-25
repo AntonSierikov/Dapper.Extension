@@ -1,7 +1,5 @@
 ﻿using Dapper.Extension.Enums;
 using Dapper.Extension.Test.Tests.Base.Fixtures;
-using Microsoft.Extensions.Configuration;
-using Moq;
 using Npgsql;
 using NUnit.Framework;
 using System;
@@ -14,8 +12,6 @@ namespace Dapper.Extension.Test.Tests.Postgres.Fixtures
     [TestFixture]
     class PostgresSimpleCRUDFixture : BaseCRUDFixture
     {
-        private String _defaultConnectionString;
-
         //----------------------------------------------------------------//
 
         public const String TEST_CONNECTION_TO_POSTGRES = "TestPostgresConnection";
@@ -25,31 +21,36 @@ namespace Dapper.Extension.Test.Tests.Postgres.Fixtures
         //----------------------------------------------------------------//
 
         public PostgresSimpleCRUDFixture()
-            : base(SqlProvider.NpgSql, MoqProviderFactory())
+            : base(SqlProvider.NpgSql)
         {}
 
         //----------------------------------------------------------------//
 
-        public override Task<String> GetSetupBaseQuery
+        public override Task<String> GetSetupSchemaBaseQuery
         {
             get
             {
-                return File.ReadAllTextAsync($@"{Environment.CurrentDirectory}/SetupQueries/Postgres/CreateCountrySchemaToTestDatabase.sql");
+                return File.ReadAllTextAsync($"{Environment.CurrentDirectory}/SetupQueries/Postgres/CreateCountrySchemaToTestDatabase.sql");
             }
         }
 
         //----------------------------------------------------------------//
 
-        public override string GetTestDefaultConnectionToServer
+        public override Task<string> GetClearTestDataBaseQuery
         {
             get
             {
-                if(_defaultConnectionString == null)
-                {
-                    _defaultConnectionString = Configuration.GetConnectionString(TEST_CONNECTION_TO_POSTGRES);
-                }
+                return File.ReadAllTextAsync($"{Environment.CurrentDirectory}/SetupQueries/Postgres/ClearUpTestDataOfCountryDatabase.sql");
+            }
+        }
 
-                return _defaultConnectionString;
+        //----------------------------------------------------------------//
+
+        public override Task<String> GetSetupTestDataBaseQuery
+        {
+            get
+            {
+                return File.ReadAllTextAsync($"{Environment.CurrentDirectory}/SetupQueries/Postgres/InsertTestDataToCountryDatabase.sql");
             }
         }
 
@@ -57,17 +58,10 @@ namespace Dapper.Extension.Test.Tests.Postgres.Fixtures
 
         public override string GetTestDatabaseName => TEST_DATABASE;
 
-        //----------------------------------------------------------------//
+        public override DbConnection CreateDbConnection => new NpgsqlConnection(GetTestDefaultConnectionStringToServer);
 
-        //need to search better method
-        private static DbProviderFactory MoqProviderFactory()
-        {
-            Mock<DbProviderFactory> mock = new Mock<DbProviderFactory>();
-            mock.Setup(m => m.CreateConnection()).Returns(() => new NpgsqlConnection());
-            return mock.Object;
-        }
+        public override string GetConnectionStringKey => TEST_CONNECTION_TO_POSTGRES;
 
         //----------------------------------------------------------------//
-
     }
 }

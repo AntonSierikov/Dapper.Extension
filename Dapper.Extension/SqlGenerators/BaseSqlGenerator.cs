@@ -4,6 +4,7 @@ using Dapper.Extension.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Dapper.Extension.SqlGenerators
 {
@@ -25,18 +26,18 @@ namespace Dapper.Extension.SqlGenerators
 
         //----------------------------------------------------------------//
 
-        public virtual String DeleteQuery(DatabaseTypeInfo databaseTypeInfo, Object key)
+        public virtual String DeleteQuery(DatabaseTypeInfo databaseTypeInfo, Object obj)
         {
-            String primaryKeyCondition = GetPrimaryKeyCondition(databaseTypeInfo, key);
+            String primaryKeyCondition = GetConditionByObject(databaseTypeInfo, obj);
             String deleteStatement = $@"DELETE FROM {databaseTypeInfo.TableDesignation} WHERE {primaryKeyCondition}";
             return deleteStatement;
         }
 
         //----------------------------------------------------------------//
 
-        public virtual String GetEntityQuery(DatabaseTypeInfo databaseTypeInfo, Object key)
+        public virtual String GetEntityQuery(DatabaseTypeInfo databaseTypeInfo, Object parameters)
         {
-            String primaryKeyCondition = GetPrimaryKeyCondition(databaseTypeInfo);
+            String primaryKeyCondition = GetConditionByObject(databaseTypeInfo, parameters);
             String getQuery = $@"SELECT * FROM {databaseTypeInfo.TableDesignation} WHERE {primaryKeyCondition}";
             return getQuery;
         }
@@ -46,7 +47,7 @@ namespace Dapper.Extension.SqlGenerators
         public virtual String InsertQuery(DatabaseTypeInfo databaseTypeInfo)
         {
             IEnumerable<String> values = databaseTypeInfo.FieldColumnMap
-                .Select(m => m.Value.IsNeedUseDefaultValue ? SqlKeywords.DEFAULT : m.Key);
+                .Select(m => m.Value.IsNeedUseDefaultValue ? SqlKeywords.DEFAULT : $"@{m.Key}");
             IEnumerable<String> columns = databaseTypeInfo.FieldColumnMap.Select(m => m.Value.ColumnName);
             IEnumerable<String> keys = databaseTypeInfo.FieldPrimaryKeyMap.Select(k => k.Value.ColumnName);
             return InsertQuery(databaseTypeInfo.TableDesignation, values, columns, keys);
@@ -68,12 +69,18 @@ namespace Dapper.Extension.SqlGenerators
 
         //----------------------------------------------------------------//
 
-        protected String GetPrimaryKeyCondition(DatabaseTypeInfo databaseTypeInfo, Object key)
+        protected String GetConditionByObject(DatabaseTypeInfo databaseTypeInfo, Object obj)
         {
-            Type keyType = key.GetType();
-            IEnumerable<PrimaryKeyDefinition> columns = databaseTypeInfo.FieldPrimaryKeyMap.Select(fc => fc.Value);
-            var customKeyMap = keyType.GetProperties().Join(columns, p => p.Name, c => c.PropertyName,
-                                    (p, c) => new { Property = p, Column = c }).ToDictionary(p => p.Property.Name, c => c.Column);
+            Type objType = obj.GetType();
+            IEnumerable<ColumnDefinition> columnsDefinition = databaseTypeInfo.FieldColumnMap.Select(fc => fc.Value);
+
+            IEnumerable<String> p_properties = objType.GetProperties().Select(p => p.Name);
+            IEnumerable<String> P_fields = objType.GetFields().Select(f => f.Name);
+
+            var customKeyMap = p_properties.Union(P_fields)
+                .Join(columnsDefinition, p => p, c => c.PropertyName, (p, c) => new { PropertyOrFieldName = p, Column = c })
+                .ToDictionary(p => p.PropertyOrFieldName, c => c.Column);
+
             return OperatorHelper.JoinPropertyColumn(customKeyMap, ComparisonOperators.EQUAL.ToString(), LogicalOperators.AND);
         }
 

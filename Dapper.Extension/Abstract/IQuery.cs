@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Dapper.Extension.Abstract
 {
-    public interface IQuery<T, TKey>
+    public interface IQuery<T>
     {
-        Task<T> GetAsync(TKey key);
+        Task<T> GetAsync(Object obj);
     }
 }

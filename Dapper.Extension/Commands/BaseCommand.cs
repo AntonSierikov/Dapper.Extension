@@ -19,23 +19,23 @@ namespace Dapper.Extension.Commands
         
         //----------------------------------------------------------------//
 
-        public virtual Task<Int32> DeleteAsync(TKey key)
+        public virtual Task<Int32> DeleteAsync(Object obj)
         {
-            return Connection.ExecuteAsync(SqlGenerator.DeleteQuery(DatabaseTypeInfo, key));
+            return Connection.ExecuteAsync(SqlGenerator.DeleteQuery(DatabaseTypeInfo, obj), obj, Transaction);
         }
 
         //----------------------------------------------------------------//
 
         public virtual Task<TKey> InsertAsync(T entity)
         {
-            return Connection.QueryFirstOrDefaultAsync<TKey>(SqlGenerator.InsertQuery(DatabaseTypeInfo));
+            return Connection.QueryFirstOrDefaultAsync<TKey>(SqlGenerator.InsertQuery(DatabaseTypeInfo), entity, Transaction);
         }
 
         //----------------------------------------------------------------//
 
         public virtual Task<Int32> UpdateAsync(T entity)
         {
-            return Connection.ExecuteAsync(SqlGenerator.UpdateQuery(DatabaseTypeInfo));
+            return Connection.ExecuteAsync(SqlGenerator.UpdateQuery(DatabaseTypeInfo), entity, Transaction);
         }
 
         //----------------------------------------------------------------//

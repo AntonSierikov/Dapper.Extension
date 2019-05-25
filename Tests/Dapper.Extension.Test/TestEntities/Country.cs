@@ -4,7 +4,7 @@ using System;
 namespace Dapper.Extension.Test.TestEntities
 {
     [TableName("country")]
-    class Country
+    class Country : IEquatable<Country>
     {
         [PrimaryKey("country_code")]
         public Int32 CountryCode { get; set; }
@@ -26,6 +26,15 @@ namespace Dapper.Extension.Test.TestEntities
             CountryCode = countryCode;
             CountryName = countryName;
             ISO_3166_code = iso_3166;
+        }
+
+        //----------------------------------------------------------------//
+
+        public Boolean Equals(Country other)
+        {
+            return String.Equals(CountryCode, other.CountryCode) &&
+                   String.Equals(CountryName, other.CountryName) &&
+                   String.Equals(ISO_3166_code, other.ISO_3166_code);
         }
 
         //----------------------------------------------------------------//

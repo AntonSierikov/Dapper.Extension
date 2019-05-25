@@ -17,7 +17,7 @@ namespace Dapper.Extension.Abstract
         IDbTransaction OpenTransaction(IsolationLevel isolationlevel = IsolationLevel.ReadCommitted);
 
         ICommand<T, TKey> CreateBaseCommand<T, TKey>() where T : class;
-        IQuery<T, TKey> CreateBaseQuery<T, TKey>() where T : class;
+        IQuery<T> CreateBaseQuery<T>() where T : class;
 
         TCustomCommandInterface GetCustomCommand<TCustomCommandInterface, TEntity, TCustomCommand>() where TCustomCommandInterface : class;
         TCustomQueryInteface GetCustomQuery<TCustomQueryInteface, TEntity, TCustomQuery>() where TCustomQueryInteface : class;

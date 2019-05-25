@@ -13,7 +13,7 @@ namespace Dapper.Extension.Entities
         public String TableName { get; }
         internal Dictionary<String, ColumnDefinition> FieldColumnMap { get; }
 
-        internal Dictionary<String, PrimaryKeyDefinition> FieldPrimaryKeyMap { get; }
+        internal Dictionary<String, PrimaryKeyColumnDefinition> FieldPrimaryKeyMap { get; }
 
         //----------------------------------------------------------------//
 

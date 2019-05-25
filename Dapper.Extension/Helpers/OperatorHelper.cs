@@ -24,5 +24,16 @@ namespace Dapper.Extension.Helpers
         }
 
         //----------------------------------------------------------------//
+
+        internal static String JoinPropertyColumn(
+            String property,
+            String column,
+            String @operator)
+        {
+            return $"{column} {@operator} @{property}";
+        }
+
+        //----------------------------------------------------------------//
+
     } 
 }

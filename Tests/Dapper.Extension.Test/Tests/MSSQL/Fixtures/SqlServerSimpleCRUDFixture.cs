@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper.Extension.Abstract;
-using Dapper.Extension.Enums;
-using Dapper.Extension.Test.TestEntities;
+﻿using Dapper.Extension.Enums;
 using Dapper.Extension.Test.Tests.Base.Fixtures;
-using NUnit;
 using NUnit.Framework;
+using System;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Dapper.Extension.Test.MSSQL.Fixtures
 {
@@ -19,24 +15,47 @@ namespace Dapper.Extension.Test.MSSQL.Fixtures
 
         //----------------------------------------------------------------//
 
+        public const String TEST_CONNECTION_TO_SQL_SERVER = "TestSqlServerConnection";
+        public const String TEST_DATABASE = "test_sql_server_database";
+
+        //----------------------------------------------------------------//
+
         private SqlServerSimpleCRUDFixture()
-            : base(SqlProvider.SqlClient, DbProviderFactories.GetFactory(nameof(SqlProvider.SqlClient)))
+            : base(SqlProvider.SqlClient)
         {}
 
-        public override Task<String> GetSetupBaseQuery
+        //----------------------------------------------------------------//
+
+        public override Task<String> GetSetupSchemaBaseQuery
         {
             get
             {
-                return File.ReadAllTextAsync($"{Environment.NewLine}/SetupQueries/Postgres/CreateCountryTestDatabase.sql");
+                throw new NotImplementedException();
             }
         }
 
         //----------------------------------------------------------------//
 
+        public override Task<String> GetSetupTestDataBaseQuery
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-        public override string GetTestDefaultConnectionToServer => throw new NotImplementedException();
+        //----------------------------------------------------------------//
 
-        public override string GetTestDatabaseName => throw new NotImplementedException();
+        public override Task<string> GetClearTestDataBaseQuery => throw new NotImplementedException();
+
+
+        //----------------------------------------------------------------//
+
+        public override string GetTestDatabaseName => TEST_DATABASE;
+
+        public override string GetConnectionStringKey => TEST_CONNECTION_TO_SQL_SERVER;
+
+        public override DbConnection CreateDbConnection => new SqlConnection(GetTestDefaultConnectionStringToServer);
 
         //----------------------------------------------------------------//
 

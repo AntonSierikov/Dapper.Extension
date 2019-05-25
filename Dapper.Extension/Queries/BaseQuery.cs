@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Extension.Queries
 {
-    class BaseQuery<T, TKey> : BaseDbOperation<T>, IQuery<T, TKey>
+    class BaseQuery<T> : BaseDbOperation<T>, IQuery<T>
     {
         //----------------------------------------------------------------//
 
@@ -15,10 +15,10 @@ namespace Dapper.Extension.Queries
 
         //----------------------------------------------------------------//
 
-        public Task<T> GetAsync(TKey key)
+        public Task<T> GetAsync(Object obj)
         {
-            String getQuery = SqlGenerator.GetEntityQuery(DatabaseTypeInfo, key);
-            return Connection.QueryFirstOrDefaultAsync<T>(getQuery, key, Transaction);
+            String getQuery = SqlGenerator.GetEntityQuery(DatabaseTypeInfo, obj);
+            return Connection.QueryFirstOrDefaultAsync<T>(getQuery, obj, Transaction);
         }
 
         //----------------------------------------------------------------//

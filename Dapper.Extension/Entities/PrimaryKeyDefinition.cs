@@ -2,7 +2,7 @@
 
 namespace Dapper.Extension.Entities
 {
-    internal class PrimaryKeyDefinition : ColumnDefinition
+    internal class PrimaryKeyColumnDefinition : ColumnDefinition
     {
 
         //----------------------------------------------------------------//
@@ -11,7 +11,7 @@ namespace Dapper.Extension.Entities
 
         //----------------------------------------------------------------//
 
-        public PrimaryKeyDefinition(
+        public PrimaryKeyColumnDefinition(
             String columnName, 
             String propertyName,
             Boolean isNeedUseDefaultValue = true,
